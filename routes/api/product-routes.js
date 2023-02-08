@@ -1,17 +1,46 @@
 const router = require('express').Router();
-const { Product, Category, Tag, ProductTag } = require('../../models');
+const {Product, Category, Tag, ProductTag} = require('../../models');
 
 // The `/api/products` endpoint
 
 // get all products
 router.get('/', (req, res) => {
   // find all products
+  console.log(Product)
+  Product.findAll().then(data => {
+    res.json(data);
+  }).catch(err=>{d
+    console.log(err);
+    res.status(500).json({
+        msg:"an error occurred",
+        err:err
+    })
+})
   // be sure to include its associated Category and Tag data
 });
 
 // get one product
 router.get('/:id', (req, res) => {
   // find a single product by its `id`
+  Product.findByPk(req.params.id,{
+    include:[
+      Category, Tag
+    ]
+}).then(data=>{
+    if(data){
+       return  res.json(data);
+    } else {
+        res.status(404).json({
+            msg:"no such record"
+        })
+    }
+}).catch(err=>{
+    console.log(err);
+    res.status(500).json({
+        msg:"an error occurred",
+        err:err
+    })
+})
   // be sure to include its associated Category and Tag data
 });
 
@@ -91,6 +120,23 @@ router.put('/:id', (req, res) => {
 
 router.delete('/:id', (req, res) => {
   // delete one product by its `id` value
+  Product.destroy({
+    where:{
+        id:req.params.id
+    }
+}).then(data=>{
+    if(data){
+        return res.json(data)
+    } else {
+        return res.status(404).json({msg:"no such record"})
+    }
+}).catch(err=>{
+    console.log(err);
+    res.status(500).json({
+        msg:"an error occurred",
+        err:err
+    })
+})
 });
 
 module.exports = router;
